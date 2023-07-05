@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Mapping {
     public int fromCoordinateToInt(int x, int y) {
-        return x* Board.DIM + y;
+        return x * Board.DIM + y;
     }
 
     public List<Integer> fromIntToCoordinate(int idx) {
