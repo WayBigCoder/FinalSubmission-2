@@ -24,7 +24,7 @@ public class ServerMain {
     private Queue<ServerThread> waitingQueue = new LinkedList<>();
 
     /**
-     * Constructor for Main Server
+     * Constructor for Main Server.
      * @throws Exception
      */
     public ServerMain() throws Exception {
