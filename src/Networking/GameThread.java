@@ -127,10 +127,16 @@ public class GameThread {
                     // Handle the exception
                 }
             }
-            //Since Thread was waking up, we can back MoveIsDone to false.
-            setMoveIsDone(false);
-            //send a move, which was done by another Thread, to the Thread, who was waiting
-            out_socket.println(Protocol.moveFromClient(moveIndex));
+            //if both players still online,then the player, who was in wait state, will do move
+            //otherwise the Protocol msg "DISCONNECT" will be sent from Server
+            if (this.getGame().getBothPlayerAlive()){
+                //Since Thread was waking up, we can back MoveIsDone to false.
+                setMoveIsDone(false);
+                //send a move, which was done by another Thread, to the Thread, who was waiting
+                out_socket.println(Protocol.moveFromClient(moveIndex));
+            } else {
+                out_socket.println(Protocol.gameOverFromServer("DISCONNECT", nameForTurn() ));
+            }
         }
     }
 }

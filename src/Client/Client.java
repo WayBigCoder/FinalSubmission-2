@@ -514,8 +514,11 @@ public class Client implements OthelloClient, Runnable {
         } else {
             reason = parse[1];
             winner = parse[2];
-
-            this.clientTUI.out.println("The winner is: " + winner + " - Reason of winning: " + reason);
+            if (reason.equals("DISCONNECT")){
+                this.clientTUI.out.println("The winner is: " + username + " - Reason of winning: " + reason);
+            } else {
+                this.clientTUI.out.println("The winner is: " + winner + " - Reason of winning: " + reason);
+            }
         }
 
         this.clientTUI.out.flush();
@@ -586,7 +589,6 @@ public class Client implements OthelloClient, Runnable {
                 break;
             } catch (Exception e) {
                 System.out.println("Invalid command");
-//                close();
             }
         }
     }

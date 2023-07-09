@@ -94,7 +94,7 @@ public class ServerThread implements Runnable {
 
                 if (message == null) {
                     socket.close(); // close the socket
-                    System.out.println("Disconnected from client.");
+                    System.out.println("Disconnected from clientt.");
                     if (name != null) {
                         serverMain.usernames.remove(name);
                     }
@@ -110,10 +110,10 @@ public class ServerThread implements Runnable {
                     //send Protocol msg to Clients about new game
                     out_socket.println(Protocol.newGameFromServer(gameThread.name1(),gameThread.name2()));
 
-                    while (!gameThread.isGameOver()){
+                    while (!gameThread.isGameOver()) {
                         //if player's name, which turn it is, matches with thread's name object
                         //then it is expecting only MOVE command from client , otherwise error
-                        if (gameThread.nameForTurn().equals(name)){
+                        if (gameThread.nameForTurn().equals(name) && gameThread.getGame().getBothPlayerAlive()){
 
                             //if client, whose turn it is, doesn't have valid moves
                             if(gameThread.getGame().getValidMoves().size() == 0) {
@@ -128,24 +128,37 @@ public class ServerThread implements Runnable {
                             }
                             while (true){
                                 message = in_socket.readLine();
-                                if(message == null){
-                                    break;
-                                }
 
-                                if (checkMoveMessage(message, out_socket)) {
+                                //if client was disconnected
+                                if(message == null){
+                                    socket.close(); // close the socket
+                                    System.out.println("Disconnected from clientt. Noo");
+                                    if (name != null) {
+                                        serverMain.usernames.remove(name);
+                                    }
+                                    //set 'BothPlayerAlive' object to false
+                                    gameThread.getGame().setBothPlayerAlive(false);
+                                    //notify another player in the waiting state
+                                    gameThread.notifyWaitState();
+                                    break;
+                                }else if (checkMoveMessage(message, out_socket)) {
                                     gameThread.getGame().resetTurnsWithoutMove();
                                     break;
                                 }
                             }
                         }else{
+                            //Because it's not player turn, (s)he goes to waiting state
                             gameThread.waitingState(name, out_socket);
                         }
                     }
-                    AbstractPlayer winner = (AbstractPlayer) gameThread.getGame().getWinner();
-                    if (gameThread.getGame().getWinner() != null)
-                        out_socket.println(Protocol.gameOverFromServer("VICTORY", winner.getName()));
-                    else{//match is draw
-                        out_socket.println(Protocol.gameOverFromServer("DRAW", null));}
+                    //if the reason wasn't "DISCONNECT", we check other 2 option (DRAW, VICTORY)
+                    if (gameThread.getGame().getBothPlayerAlive()) {
+                        AbstractPlayer winner = (AbstractPlayer) gameThread.getGame().getWinner();
+                        if (gameThread.getGame().getWinner() != null)
+                            out_socket.println(Protocol.gameOverFromServer("VICTORY", winner.getName()));
+                        else{ //otherwise match is draw
+                            out_socket.println(Protocol.gameOverFromServer("DRAW", null));}
+                    }
                 }else{
                     out_socket.println("ERROR");
                 }
