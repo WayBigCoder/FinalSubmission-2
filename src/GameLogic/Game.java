@@ -13,9 +13,9 @@ public interface Game {
     /**
      * change the current board to the given Board in parameter.
      *
-     * @param board which replaces the current board
+     * @param boardcopy which replaces the current board
      */
-    void changeBoard(Board board);
+    void changeBoard(Board boardcopy);
     /**
      * Check if the game is over, i.e., there is no spaces in th board
      * or count reaches 2, meaning no moves available for 2 players, even if the board is full.

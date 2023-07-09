@@ -49,6 +49,8 @@ public class Board {
 
     /**
      * Creates a deep copy of this field.
+     *
+     * This method was created for Testing.
      */
     /*@ ensures \result != this;
      ensures (\forall int i; (i >= 0 && i < DIM*DIM); \result.fields[i] == this.fields[i]);
@@ -184,6 +186,9 @@ public class Board {
 
     /**
      * Returns the content of the field i.
+     *
+     * This method was created for Testing.
+     *
      * @param i the number of the field
      * @return the mark on the field
      */

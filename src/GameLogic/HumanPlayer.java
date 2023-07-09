@@ -76,8 +76,8 @@ public class HumanPlayer extends AbstractPlayer {
         }
         try {
             //check if row and col are Integer type
-            int row = Integer.parseInt(coordinates[0]);
-            int col = Integer.parseInt(coordinates[1]);
+            Integer.parseInt(coordinates[0]);
+            Integer.parseInt(coordinates[1]);
             return true;
         } catch (NumberFormatException e) {
             return false;
