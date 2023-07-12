@@ -1,13 +1,15 @@
 package GameLogic;
 
 /**
- * A player of a game.
+ * AbstractPlayer class representing a player in a game.
  */
 public abstract class AbstractPlayer implements Player {
     private final String name;
 
     /**
      * Creates a new Player object.
+     *
+     * @param name the name of the player
      */
     /*@ requires name != null;
         ensures getName() == name;
@@ -18,7 +20,8 @@ public abstract class AbstractPlayer implements Player {
 
     /**
      * Returns the name of the player.
-     * @return the name of the player
+     *
+     * @return the name
      */
     //@ ensures \result == this.name;
     public String getName() {
@@ -27,8 +30,9 @@ public abstract class AbstractPlayer implements Player {
 
     /**
      * Determines the next move, if the game still has available moves.
+     *
      * @param game the current game
-     * @return Move of the player's choice
+     * @return the player's chosen move
      */
     //@ requires !game.isGameover();
     //@ ensures game.isValidMove(\result);
@@ -36,7 +40,8 @@ public abstract class AbstractPlayer implements Player {
 
     /**
      * Returns a representation of a player, i.e., their name
-     * @return the String representation of this object
+     *
+     * @return the string representation of the player
      */
     @Override
     public String toString() {

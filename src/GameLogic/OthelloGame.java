@@ -5,20 +5,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Game class, consisting all needed game mechanics
+ * The Othello game class, consisting of all the necessary game mechanics.
  */
 public class OthelloGame implements Game {
     private Board board;
     private AbstractPlayer player1;
     private AbstractPlayer player2;
-    private int turnIndex;  //O for black, 1 for white
-    private int count;      //if count reaches 2, then both players don't have moves, even if the board are not full
-    private boolean bothPlayerAlive; //true = both players alive, false = at least one player disconnected
+    private int turnIndex;  // O for black, 1 for white
+    private int count;      // If count reaches 2, then both players don't have moves, even if the board are not full
+    private boolean bothPlayerAlive; // True = both players alive, false = at least one player disconnected
 
     /**
-     * Create an OthelloGame with assigned 2 players
-     * @param player1
-     * @param player2
+     * Creates an OthelloGame with the assigned two players.
+     *
+     * @param player1 the first player
+     * @param player2 the second player
      */
     public OthelloGame(AbstractPlayer player1, AbstractPlayer player2) {
         this.board = new Board();
@@ -30,40 +31,41 @@ public class OthelloGame implements Game {
     }
 
     /**
-     * Get the board
-     * @return the board
+     * Gets the board of the game.
+     *
+     * @return the game board
      */
     public Board getBoard() {
         return this.board;
     }
 
     /**
-     * Change this board to whichever board that is passed in parameter
-     * @param boardcopy which replaces the current board
+     * Changes the current board to the given board copy.
+     *
+     * @param boardCopy the board that replaces the current board
      */
-    public void changeBoard(Board boardcopy){
-        this.board = boardcopy;
+    public void changeBoard(Board boardCopy){
+        this.board = boardCopy;
     }
 
     /**
-     * If the current player doesn't have move, we call this method to increase the count by 1
-     * @return
+     * Increments the count of turns without a move for the current player.
      */
     public void incrementTurnsWithoutMove() {
         this.count += 1;
     }
 
     /**
-     * Getter for count object
-     * @return the value of count
+     * Returns the count of turns without a move for the current player.
+     *
+     * @return the count of turns without a move
      */
     public int getTurnsWithoutMove() {
         return this.count;
     }
 
     /**
-     * This method sets count to zero , if at least one player have a move
-     * @return the count
+     * Resets the count of turns without a move to zero when at least one player has a move.
      */
     public void resetTurnsWithoutMove() {
         this.count = 0;
@@ -74,18 +76,18 @@ public class OthelloGame implements Game {
     }
 
     /**
-     * Setter for BothPlayerAlive object.
+     * Sets the status of both players (alive (true) or disconnected (false)).
      *
-     * @param status
+     * @param status the status of both players
      */
     public void setBothPlayerAlive(boolean status){
         this.bothPlayerAlive = status;
     }
 
     /**
-     * Getter for BothPlayerAlive object.
+     * Returns the status of both players.
      *
-     * @return true if both players alive, otherwise false
+     * @return true if both players are alive, false otherwise
      */
     public boolean getBothPlayerAlive(){
         return this.bothPlayerAlive;
@@ -99,27 +101,51 @@ public class OthelloGame implements Game {
             return player2;
     }
 
+    /**
+     * Changes the turn index between 0 and 1.
+     */
+    //@ ensures \old(turnIndex) == 0 ==> turnIndex == 1;
+    //@ ensures \old(turnIndex) == 1 ==> turnIndex == 0;
+    public void turnIndexChange(){
+        // O for black, 1 for white
+        turnIndex = turnIndex == 0 ? 1 : 0;
+    }
+
+    /**
+     * Gets the current turn index.
+     *
+     * @return the current turn index (0 or 1)
+     */
+    public int getTurnIndex(){
+        return turnIndex;
+    }
+
     @Override
     public Player getWinner() {
         if (board.getWinnerMark() == Mark.XX)
             return player1;
         else if ((board.getWinnerMark() == Mark.OO))
             return player2;
-        //if draw
+        // If draw, null will be returned
         return null;
     }
 
     @Override
     public List<Move> getValidMoves() {
+        // List to store the valid moves
         List<Move> moves = new ArrayList<>();
         Mark currentMark = turnIndex == 0 ? Mark.XX : Mark.OO;
+
+        // Iterate over the rows of the board
         for (int i = 0; i < board.DIM; i++)
+            // Iterate over the columns of the board
             for (int j = 0; j < board.DIM; j++)
             {
+                // Create a move object for the current position
                 Move currentMove = new OthelloMove(i, j, currentMark);
 
                 if (isValidMove(currentMove))
-                    moves.add(currentMove);
+                    moves.add(currentMove); // Add the valid move to the list of moves
             }
         return moves;
     }
@@ -142,23 +168,19 @@ public class OthelloGame implements Game {
         OthelloMove tttm = (OthelloMove) move;
         this.board.setField(tttm.getRow(), tttm.getCol(), tttm.getMark());
 
-        //if DoMove was called, then this move is valid, meaning that at least one opponent's disc should be flipped
-        //as indexes of discs(that should be flipped) placed in board.flippedDiscs array
-        //so until the size of flippedDisc[] is not zero, we continue to extract each index.
+        /*
+        * If doMove was called, the move is valid, and at least one opponent's disc should be flipped,
+        * as the indexes of the discs that should be flipped are stored in board.flippedDiscs array.
+        * Iterate through each index in flippedDiscs and set the corresponding field on the board to the mark of the move.
+         */
         for (int i = 0; i<this.board.flippedDiscs.size() ; i ++){
             this.board.setField(board.row(board.flippedDiscs.get(i)), board.col(board.flippedDiscs.get(i)), tttm.getMark());
         }
-        //change index of player after valid move is done
+
+        // Change index of player after valid move is done
         turnIndexChange();
     }
-    //@ ensures \old(turnIndex) == 0 ==> turnIndex == 1;
-    //@ ensures \old(turnIndex) == 1 ==> turnIndex == 0;
-    public void turnIndexChange(){
-        turnIndex = turnIndex == 0 ? 1 : 0;
-        //O for black, 1 for white
-    }
-    public int getTurnIndex(){
-        return turnIndex;
-    }
+
+
 }
 

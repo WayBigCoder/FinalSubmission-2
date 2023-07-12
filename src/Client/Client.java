@@ -6,13 +6,17 @@ import ArtificialIntelligence.SmartStrategy;
 import GameLogic.*;
 import util.Mapping;
 import util.Protocol;
-
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * This class represents a client for the Othello game.
+ * It implements the OthelloClient interface and
+ * provides methods to connect to a server, send commands, and handle server responses.
+ */
 public class Client implements OthelloClient, Runnable {
     Socket socket;
     private BufferedReader in;
@@ -34,19 +38,13 @@ public class Client implements OthelloClient, Runnable {
     }
 
     /**
-     * This boolean method should return true on success or false on failure,
-     * in terms of a client connecting to a specific port of server
+     * Connects the client to a specific port of the server.
+     * Initializes BufferedReader and BufferedWriter based on the created socket.
      *
-     * In case an exception is thrown, then print out the message
-     * indicating the error, then close the socket and return false
-     *
-     * Finally, this method will initialize BufferedReader and BufferedWriter
-     * based on the recent created socket
-     *
-     * @param address, which is the IP address of the server
-     * @param port, which is the port that you want to connect to
-     * @return true if successfully connected; else false
-     * @throws IOException
+     * @param address the IP address of the server
+     * @param port    the port to connect to
+     * @return true if the connection is successful, false otherwise
+     * @throws IOException if an I/O error occurs while connecting
      */
     //@ ensures \result == true || \result == false;
     @Override
@@ -62,19 +60,17 @@ public class Client implements OthelloClient, Runnable {
             out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         }
-
     }
-
 
     /**
      * Get the username of the player.
+     *
      * @return player's username
      */
     //@ ensures \result == this.username;
     public String getUsername() {
         return this.username;
     }
-
 
     /**
      * Disconnect from server by closing the socket as well as the buffered writer.
@@ -105,9 +101,7 @@ public class Client implements OthelloClient, Runnable {
             System.out.println("[CLIENT] Exception raised in sending hello");
             close();
         }
-
     }
-
 
     /**
      * This method shows how to process if Client receives back HELLO protocol from server.
@@ -116,24 +110,30 @@ public class Client implements OthelloClient, Runnable {
      */
     public synchronized void handleHello() {
         try {
-            this.clientTUI.out.print("Enter the username: "); // print to console
+            // Prompt the user to enter the username
+            this.clientTUI.out.print("Enter the username: ");
             this.clientTUI.out.flush();
 
-            this.username = this.clientTUI.in.readLine(); // take the username
+            // Read the username from the input stream
+            this.username = this.clientTUI.in.readLine();
 
+            // Check if the username is empty
             while (this.username.trim().length() == 0) {
                 this.clientTUI.out.print("Name can't be left empty! Enter the username: ");
                 this.clientTUI.out.flush();
 
+                // Read the username from the input stream
                 this.username = this.clientTUI.in.readLine();
             }
 
-            out.write(Protocol.loginFromClient(this.username)); // write the message including username to socket
+            // Write the LOGIN Protocol message to the socket output stream
+            out.write(Protocol.loginFromClient(this.username));
             out.newLine();
             out.flush();
 
         } catch (Exception e) {
             System.out.println("[CLIENT] Exception raised in handling LOGIN!");
+            // Close the client connection
             this.close();
         }
     }
@@ -153,33 +153,39 @@ public class Client implements OthelloClient, Runnable {
         this.clientTUI.out.println("\t4. QUIT\n");
         this.clientTUI.out.println("=====================================\n");
 
+        // Flush the output stream to ensure the menu is displayed immediately
         this.clientTUI.out.flush();
 
         int choice;
 
+        // Keep asking for the user's choice until a valid integer is entered
         while (true) {
             try {
+                // Read the user's choice from the input stream
                 System.out.print("Enter your choice: ");
                 String line = this.clientTUI.in.readLine();
                 choice = Integer.parseInt(line);
                 break;
             } catch (NumberFormatException e) {
                 System.out.println("Wrong format! Cannot convert into integer!");
-
             } catch (IOException e) {
                 System.out.println("[CLIENT] Error when reading choices input");;
             }
         }
 
+        // Perform the corresponding action based on the user's choice
         switch (choice) {
             case 1:
-                sendListCommand(); // send LIST command to the server
+                // Send LIST command to the server
+                sendListCommand();
                 break;
             case 2:
-                sendQueueCommand(); // send QUEUE command to the server
+                // Send QUEUE command to the server
+                sendQueueCommand();
                 break;
             case 3:
-                handleLogin(); // handle with logging in
+                // Handle the login process
+                handleLogin();
                 break;
             case 4:
                 close();
@@ -190,7 +196,6 @@ public class Client implements OthelloClient, Runnable {
         }
     }
 
-
     /**
      * This method shows how to process if Client receives back LOGIN protocol from server
      * which is storing this client to a list for future using
@@ -200,7 +205,6 @@ public class Client implements OthelloClient, Runnable {
     public synchronized void handleLogin() {
         printMenu();
     }
-
 
     /**
      * This boolean method should return true on success or false on failure,
@@ -287,13 +291,11 @@ public class Client implements OthelloClient, Runnable {
             out.write(Protocol.error(message));
             out.newLine();
             out.flush();
-
         } catch (IOException e) {
             System.out.println("[CLIENT] Exception raised in sending ERROR command");
             close();
         }
     }
-
 
     /**
      * This boolean method should return true on success or false on failure,
@@ -314,8 +316,8 @@ public class Client implements OthelloClient, Runnable {
             out.write(moveProtocol);
             out.newLine();
             out.flush();
-
             return true;
+
         } catch (IOException e) {
             System.out.println("[CLIENT] Exception raised in sending MOVE command");
             sendError("Sending MOVE command");
@@ -325,24 +327,24 @@ public class Client implements OthelloClient, Runnable {
     }
 
     /**
-     * This method handles when the client receives NEWGAME protocol from the server
-     * The method starts handling the first move for both players, where one will place the Mark
-     * and the other will be in waiting state. Then, it sends MOVE to the server, the server
-     * sends MOVE back and client continues using that MOVE for the other player
+     * This method handles the situation when the client receives the NEWGAME protocol from the server.
+     * It initiates the start of the game by handling the first move for both players.
+     * One player places the mark, while the other player waits.
+     * Then, it sends a MOVE command to the server, receives a MOVE back, and continues the game using that MOVE for the other player.
      *
-     * @param input, which is the NEWGAME protocol sent by the server
-     * @throws IOException
+     * @param input the NEWGAME protocol sent by the server
+     * @throws IOException if an I/O error occurs while communicating with the server
      */
     //@ requires input != null;
     public synchronized void handleNewGame(String input) throws IOException {
         Mapping mapping = new Mapping(); // create a new mapping object to convert
 
-        // receive NEWGAME protocol
+        // Split the NEWGAME protocol message
         String[] parse = input.split("~");
         String name1 = parse[1];
         String name2 = parse[2];
 
-        // check if the first turn belongs to us
+        // Check if the first turn belongs to us
         boolean playFirst = (name1.equals(this.username)); // check if i'm indeed the 1st player
 
         String answer1;
@@ -352,6 +354,7 @@ public class Client implements OthelloClient, Runnable {
         System.out.print("Do you want AI to play for you? (yes/no): ");
         answer1 = this.clientTUI.in.readLine();
 
+        // Validate the answer
         while (!answer1.equals("yes") && !answer1.equals("no")) {
             System.out.print("Please enter your option again (yes/no): ");
             answer1 = this.clientTUI.in.readLine();
@@ -367,8 +370,7 @@ public class Client implements OthelloClient, Runnable {
                 answer2 = this.clientTUI.in.readLine();
             }
 
-            // if this is indeed our turn
-            // then create a corresponding player
+            // Create a corresponding player based on the user's answer
             if (playFirst) {
                 if (answer2.equals("-N")) {
                     this.player = new ComputerPlayer(Mark.XX, new NaiveStrategy());
@@ -382,7 +384,7 @@ public class Client implements OthelloClient, Runnable {
                     this.player = new ComputerPlayer(Mark.OO, new SmartStrategy());
                 }
             }
-        } else { // answer is no
+        } else { // No AI
             if (playFirst) {
                 this.player = new HumanPlayer(this.username, Mark.XX);
             } else {
@@ -390,59 +392,54 @@ public class Client implements OthelloClient, Runnable {
             }
         }
 
-
         System.out.println("Player " + name1 + " goes first");
         AbstractPlayer otherPlayer;
 
-        // next, create a game object between the 2 players
+        // Create a game object between the two players
         if (playFirst) {
             otherPlayer = new HumanPlayer(name2, Mark.OO);
             game = new OthelloGame(this.player, otherPlayer);
-
         } else {
             otherPlayer = new HumanPlayer(name1, Mark.XX);
             game = new OthelloGame(otherPlayer, this.player);
         }
 
-        // then print out the board to observe the state
+        // Print the current state of the board
         System.out.println(game.getBoard());
 
-        // if this is our turn
+        // If it's our turn
         if (game.getTurn() == this.player) {
-
-            // then, we'll find a move and send this move
+            // Find a move and send it
             Move currentMove = this.player.determineMove(this.game);
             int row = ((OthelloMove) currentMove).getRow();
             int col = ((OthelloMove) currentMove).getCol();
             int actualIndex = mapping.fromCoordinateToInt(row, col);
-
             sendMoveCommand(actualIndex);
-
-        } else { // else, we'll be waiting
+        } else {
+            // Waiting for the other player's turn
             System.out.println("Waiting for the other's turn!");
         }
-
-
     }
 
-
     /**
-     * This method handles MOVE commands sent by server that the client receives.
-     * @param input, which is the MOVE protocol sent by the server
+     * Handles the MOVE commands sent by the server to the client.
+     *
+     * @param input the MOVE protocol sent by the server
      */
-    //@ requires input!=null;
+    //@ requires input != null;
     public synchronized void handleMove(String input) {
         Mapping mapping = new Mapping();
 
-        // the server responses the MOVE
+        // Split the input to extract the index
         String[] parse = input.split("~"); // MOVE~index
         int index = Integer.parseInt(parse[1]);
 
         {
+            // Convert the index to row and column
             List<Integer> result = mapping.fromIntToCoordinate(index);
 
-            int rowConvert = result.get(0);
-            int colConvert = result.get(1);
+            int rowConvert = result.get(0); // Extract the converted row
+            int colConvert = result.get(1); // Extract the converted col
 
             Mark currentMark;
             if (this.game.getTurnIndex() == 0) {
@@ -452,81 +449,81 @@ public class Client implements OthelloClient, Runnable {
             }
             Move moveToPlaceInCell = new OthelloMove(rowConvert, colConvert, currentMark);
 
+            // Check if the move is valid
             if (game.isValidMove(moveToPlaceInCell)) {
                 this.game.doMove(moveToPlaceInCell);
                 System.out.println(this.game.getBoard());
+
+                // If the game is over
                 if (this.game.isGameover()) {
                     System.out.println("Game Over");
                     return;
                 }
-
-
             } else {
                 System.out.println(this.player.getName() + " passed!");
+                // Change the turn index to the next player
                 this.game.turnIndexChange();
+                // Print the updated game board
                 System.out.println(this.game.getBoard());
             }
         }
 
-        // check if the next move is our move or not
+        // Check if it's the player's turn and there are valid moves
         if (game.getTurn() == this.player && game.getValidMoves().size() != 0) {
             System.out.println("Your turn");
 
+            // Determine the move for the player
             Move currentMove = this.player.determineMove(this.game);
 
             if (currentMove == null) {
-
                 System.out.println("No more valid moves.");
-
                 sendMoveCommand(64);
-
-            } else { // determine the move and send the move
+            } else {
+                // Determine the move and send the move command
                 int row = ((OthelloMove) currentMove).getRow();
                 int col = ((OthelloMove) currentMove).getCol();
                 int actualIndex = mapping.fromCoordinateToInt(row, col);
-
                 sendMoveCommand(actualIndex);
             }
         } else {
             System.out.println("Waiting for the other's turn!");
         }
-
-
-        }
-
+    }
 
     /**
      * This method handles GAMEOVER command sent by server that the client receives
      * It prints out who the winner is and what the reason of victory, then
      * print out the menu for player to choose again
      *
-     * @param message, which is the GAMEOVER protocol sent by the server
+     * @param message which is the GAMEOVER protocol sent by the server
      */
     //@ requires message != null;
     public synchronized void handleGameOver(String message) {
-        String[] parse = message.split("~"); // GAMEOVER~reason~name or GAMEOVER~draw
+        // Split the message by "~" to extract components
+        String[] parse = message.split("~");
         String reason;
         String winner;
 
-        if (parse.length == 2) { // draw case
+        // If the length is 2 (GAMEOVER~DRAW) it's a draw case
+        if (parse.length == 2) {
             this.clientTUI.out.println("The game ended in draw"); // do we need a queue in a client to
                                                             // to keep track of the clients
         } else {
-            reason = parse[1];
-            winner = parse[2];
-            if (reason.equals("DISCONNECT")){
+            reason = parse[1]; // Extract the reason from the parsed message
+            winner = parse[2]; // Extract the winner from the parsed message
+            if (reason.equals("DISCONNECT")) {
                 this.clientTUI.out.println("The winner is: " + username + " - Reason of winning: " + reason);
             } else {
                 this.clientTUI.out.println("The winner is: " + winner + " - Reason of winning: " + reason);
             }
         }
 
+        // Flush the output stream
         this.clientTUI.out.flush();
 
+        // Print the menu for the player to choose again
         printMenu();
-
     }
-
 
     /**
      * This method will handle the commands that the server receives from the client.
@@ -563,7 +560,6 @@ public class Client implements OthelloClient, Runnable {
             default:
                 throw new Exception("Command is invalid");
         }
-
     }
 
     /**
@@ -593,11 +589,11 @@ public class Client implements OthelloClient, Runnable {
         }
     }
 
-
     public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);
         Client client = new Client();
 
+        // Prompt user for IP address and port number and establish connection
         while (true) {
             try {
                 System.out.print("Enter IP Address: ");
@@ -608,7 +604,7 @@ public class Client implements OthelloClient, Runnable {
 
                 InetAddress ipAddress = InetAddress.getByName(ip);
 
-                // make connection
+                // Make connection
                 System.out.println("Starting to connect to the client");
                 if (!client.connect(ipAddress, Integer.parseInt(port))) {
                     System.out.println("Failed to connect");
@@ -621,10 +617,9 @@ public class Client implements OthelloClient, Runnable {
                 client.close();
             }
         }
-
         System.out.println("Client connected");
 
+        // Start a new thread for the client
         new Thread(client).start();
     }
-
 }

@@ -3,7 +3,7 @@ package util;
 import java.util.ArrayList;
 
 /**
- * networking.Util.Protocol class with constants and methods for creating protocol messages
+ * The Protocol class provides constants and methods for creating protocol messages.
  */
 public final class Protocol {
     private Protocol() {}
@@ -22,38 +22,79 @@ public final class Protocol {
     public static final String DISCONNECT = "DISCONNECT";
     public static final String VICTORY = "VICTORY";
     public static final String DRAW = "DRAW";
+
     /**
-     * Build a new protocol description which instructs the networking.server that you want to say something
+     * Builds a new protocol message to initiate communication with the server.
+     *
      * @return the protocol message
      */
-    //for
     public static String helloFromClient() {
         return HELLO + SEPARATOR + DESCRIPTION_CLIENT;
     }
+
+    /**
+     * Builds a new protocol message to send the client's login information to the server.
+     *
+     * @param username the client's username
+     * @return the protocol message
+     */
     public static String loginFromClient(String username) {
         return LOGIN + SEPARATOR + username;
     }
+
+    /**
+     * Builds a new protocol message to indicate a move command.
+     *
+     * @return the protocol message
+     */
     public static String move() {
         return MOVE;
     }
+
+    /**
+     * Builds a new protocol message to indicate an error.
+     *
+     * @param description the error description
+     * @return the protocol message
+     */
     public static String error(String description) {
         return ERROR + SEPARATOR + description;
     }
-    public static String GAMEOVER(String message) {
-        return GAMEOVER;
-    }
 
+    /**
+     * Builds a new protocol message to greet the client from the server.
+     *
+     * @param description the server description
+     * @return the protocol message
+     */
     public static String helloFromServer(String description) {
         return HELLO + SEPARATOR + "Server by " + description;
     }
 
+    /**
+     * Builds a new protocol message to indicate a login message from the server.
+     *
+     * @return the protocol message
+     */
     public static String loginFromServer() {
         return LOGIN;
     }
 
+    /**
+     * Builds a new protocol message to indicate that the client is already logged in.
+     *
+     * @return the protocol message
+     */
     public static String alreadyLoggedInFromServer() {
         return ALREADYLOGGEDIN;
     }
+
+    /**
+     * Builds a new protocol message to send the list of usernames from the server.
+     *
+     * @param usernames the list of usernames
+     * @return the protocol message
+     */
     public static String listFromServer(ArrayList<String> usernames) {
         String message = LIST;
         for (String username: usernames){
@@ -61,12 +102,35 @@ public final class Protocol {
         }
         return message;
     }
+
+    /**
+     * Builds a new protocol message to indicate a new game from the server.
+     *
+     * @param player1 the name of player 1
+     * @param player2 the name of player 2
+     * @return the protocol message
+     */
     public static String newGameFromServer(String player1, String player2){
         return NEWGAME + SEPARATOR + player1 + SEPARATOR + player2;
     }
+
+    /**
+     * Builds a new protocol message to indicate a move from the client.
+     *
+     * @param index the move index
+     * @return the protocol message
+     */
     public static String moveFromClient(int index){
         return MOVE + SEPARATOR + index;
     }
+
+    /**
+     * Builds a new protocol message to indicate a game over situation from the server.
+     *
+     * @param reason the reason for game over (victory, draw or disconnect)
+     * @param name   the name of winner
+     * @return the protocol message
+     */
     public static String gameOverFromServer(String reason, String name){
         if (reason.toUpperCase().equals(VICTORY))
             return GAMEOVER + SEPARATOR + VICTORY + SEPARATOR + name;

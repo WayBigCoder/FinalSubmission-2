@@ -13,22 +13,26 @@ import java.util.Scanner;
 public class OthelloTUI {
     private OthelloGame game;
 
+    /**
+     * Creates an OthelloTUI object.
+     */
     public OthelloTUI() {}
-    // constructor for 2 Abstract Players
 
     /**
-     * Constructor that creates a new OthelloTUI with 2 assigned players
-     * @param player1
-     * @param player2
+     * Constructor that creates a new OthelloTUI with 2 assigned players.
+     *
+     * @param player1 the first player
+     * @param player2 the second player
      */
     public OthelloTUI(AbstractPlayer player1, AbstractPlayer player2) {
         this.game = new OthelloGame(player1, player2);
     }
 
     /**
-     * check what type of player will be based on his name : Human or Computer(if -S or -N)
-     * @param name of the player
-     * @param mark his mark
+     * Checks what type of player will be based on their name: Human or Computer (if -S or -N).
+     *
+     * @param name the name of the player
+     * @param mark the mark of the player
      * @return the player type
      */
     public AbstractPlayer TypeOfPlayer(String name, Mark mark){
@@ -37,88 +41,101 @@ public class OthelloTUI {
             Scanner sc = new Scanner(System.in);
             System.out.print("Choose the challenge level (Hard or Easy): ");
             String level = sc.nextLine();
+
             if (level.equals("Hard")){
+                // Create a new ComputerPlayer with the given mark and SmartStrategy
                 player = new ComputerPlayer(mark, new SmartStrategy());
             }else{
+                // Create a new ComputerPlayer with the given mark and NaiveStrategy
                 player = new ComputerPlayer(mark, new NaiveStrategy());
             }
         }
         else{
-            player = new HumanPlayer(name, mark);}
+            // Create a new HumanPlayer with the given name and mark
+            player = new HumanPlayer(name, mark);
+        }
 
+        // Return the created player
         return player;
     }
 
     /**
-     * This method ask players for their names and assign each to player1 and player2
-     * @return OthelloTUI with two parameters (AbstractPlayer player1, AbstractPlayer player2)
+     * Asks players for their names and assigns them to player1 and player2.
+     *
+     * @return an OthelloTUI object with two players
      */
     public OthelloTUI GameWithPlayers() {
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter name for player 1: ");
         String name1 = sc.nextLine();
 
+        // Continue asking for name if it is null or contains only whitespace characters
         while(name1.trim().length() == 0) {
             System.out.println("Name cannot be null! Please enter again!");
             System.out.print("Enter name for player 1: ");
             name1 = sc.nextLine();
         }
+
+        // Create an AbstractPlayer object for player 1
         AbstractPlayer player1 = TypeOfPlayer(name1, Mark.XX);
 
         System.out.print("Enter name for player 2: ");
         String name2 = sc.nextLine();
+
+        // Continue asking for name if it is null or contains only whitespace characters
         while(name2.trim().length() == 0) {
             System.out.println("Name cannot be null! Please enter again!");
             System.out.print("Enter name for player 2: ");
             name2 = sc.nextLine();
         }
+
+        // Create an AbstractPlayer object for player 2
         AbstractPlayer player2 = TypeOfPlayer(name2, Mark.OO);
 
 
         OthelloTUI ticTacToeTUI = new OthelloTUI(player1, player2);
         return ticTacToeTUI;
     }
+
     /**
-     * This method, used in the MAIN, runs a game of Othello.
+     * Runs a game of Othello.
      * It creates an instance of the OthelloTUI class and enters a loop that continues until the game is over.
-     * ---
-     * In the loop,
-     * the method prints the current state of the game board, prompts the current player for their move,
+
+     * In the loop, the method prints the current state of the game board, prompts the current player for their move,
      * updates the game state based on the player's move, and checks if the game is over.
-     *
      */
     public void run() {
         boolean flag = true;
         while (flag) {
-            //GameWithPlayers() returns --> TicTacToeTUI(player1, player2)
+            // Create an instance of OthelloTUI with two players
             OthelloTUI othelloTUI = GameWithPlayers();
 
+            // Loop until the game is over
             while (!othelloTUI.game.isGameover()) {
-                // print the board
+                // Print the current state of the game board
                 System.out.println(othelloTUI.game.getBoard().toString());
 
-                //return the player(whose turn it is) player1 or player2
+                // Get the current player's turn
                 AbstractPlayer currentPlayer = (AbstractPlayer) othelloTUI.game.getTurn();
                 System.out.println("It's " + currentPlayer.getName() + "'s turn");
 
-                //if no potential moves for a player, then we turnIndex for the next player
-                //and increase a count number
-                //(if count number reaches 2, then it means both players don't have moves, so the game will be over)
+                // Check if there are valid moves for the current player
                 if(othelloTUI.game.getValidMoves().size() == 0){
+                    // No valid moves, change the turn to the next player and increment "count of turns without a move"
                     othelloTUI.game.turnIndexChange();
                     othelloTUI.game.incrementTurnsWithoutMove();
                     continue;
                 }
                 othelloTUI.game.resetTurnsWithoutMove();
-                //ask player for move
+
+                // Ask the current player for their move
                 Move currentMove = currentPlayer.determineMove(othelloTUI.game);
 
-                //doMove -(in doMove the turn_index is changed for next player)-
+                // Perform the move and update the game state
                 othelloTUI.game.doMove(currentMove);
-
-
-
             }
+
+            // Print the winner or indicate a draw
             if (othelloTUI.game.getWinner() != null)
                 System.out.println("The winner is: " + othelloTUI.game.getWinner());
             else
@@ -134,6 +151,11 @@ public class OthelloTUI {
         }
     }
 
+    /**
+     * The entry point of the program.
+     *
+     * @param args the command line arguments
+     */
     public static void main(String[] args) {
         OthelloTUI othelloTUI = new OthelloTUI();
         othelloTUI.run();

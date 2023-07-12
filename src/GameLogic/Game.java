@@ -3,7 +3,7 @@ package GameLogic;
 import java.util.List;
 
 /**
- * A simple turn-based game.
+ * The interface for a game.
  */
 public interface Game {
 
@@ -13,20 +13,22 @@ public interface Game {
     /**
      * change the current board to the given Board in parameter.
      *
-     * @param boardcopy which replaces the current board
+     * @param boardCopy which replaces the current board
      */
-    void changeBoard(Board boardcopy);
+    void changeBoard(Board boardCopy);
+
     /**
      * Check if the game is over, i.e., there is no spaces in th board
      * or count reaches 2, meaning no moves available for 2 players, even if the board is full.
      *
-     * @return whether the game is over
+     * @return true if the game is over, false otherwise
      */
     //@ pure;
     boolean isGameover();
 
     /**
      * Query whose turn it is.
+     *
      * @return the player whose turn it is
      */
     //@ ensures !isGameover() ==> getTurn() != null;
@@ -34,7 +36,8 @@ public interface Game {
     Player getTurn();
 
     /**
-     * Get the winner of the game. If the game is a draw, then this method returns null.
+     * Gets the winner of the game. If the game is a draw, then this method returns null.
+     *
      * @return the winner, or null if no player is the winner
      */
     //@ ensures !isGameover() ==> getWinner() == null;
@@ -42,7 +45,8 @@ public interface Game {
     Player getWinner();
 
     /**
-     * Return all moves that are valid in the current state of the game.
+     * Returns a list of all moves that are valid in the current state of the game.
+     *
      * @return the list of currently valid moves
      */
     //@ ensures (\forall Move m; \result.contains(m); isValidMove(m));
@@ -51,16 +55,18 @@ public interface Game {
     List<Move> getValidMoves();
 
     /**
-     * Check if a move is a valid move.
+     * Checks if a move is valid.
+     *
      * @param move the move to check
-     * @return true if the move is a valid move
+     * @return true if the move is valid, false otherwise
      */
     //@ ensures \result <==> (\exists Move m; getValidMoves().contains(m); m.equals(move));
     //@ pure;
     boolean isValidMove(Move move);
 
     /**
-     * Perform the move, assuming it is a valid move.
+     * Performs the given move, assuming it is a valid move.
+     *
      * @param move the move to play
      */
     //@ requires isValidMove(move);

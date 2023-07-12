@@ -2,6 +2,9 @@ package Client;
 
 import java.io.*;
 
+/**
+ * This class represents a Client Text User Interface (TUI) for handling input and output.
+ */
 public class ClientTUI {
     public BufferedReader in;
     public PrintWriter out;
