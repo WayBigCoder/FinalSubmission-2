@@ -10,22 +10,24 @@ import java.util.Queue;
 import java.util.Scanner;
 
 /**
- * Main Server
+ * Main Server class that handles client connections and game initialization.
  */
 public class ServerMain {
 
     private ServerSocket server_socket;
     public ArrayList<String> usernames;
 
-    //objects , which are needed for adding Thread to the queue and game start
+    // Objects needed for adding Thread to the queue and game start
     private final Object lock = new Object();
+    // Counter object represents the number of Threads, who already got the same GameThread object.
     private int counter = 0;
     private GameThread gameThread = null;
     private Queue<ServerThread> waitingQueue = new LinkedList<>();
 
     /**
-     * Constructor for Main Server.
-     * @throws Exception
+     * Constructor for the Main Server.
+     *
+     * @throws Exception if an error occurs during server initialization.
      */
     public ServerMain() throws Exception {
         int port;
@@ -57,11 +59,15 @@ public class ServerMain {
         System.out.println("Port " + port + " is now open");
     }
 
-
+    /**
+     * Starts the server and listens for client connections.
+     *
+     * @throws IOException if an error occurs during socket acceptance.
+     */
     public void start() throws IOException {
-        /**
-         * Server will be always on, and a lot of different clients can be connected
-         * For each client will be created different Thread of Server
+        /*
+         * The server will be always on, and multiple different clients can be connected.
+         * For each client, a separate ServerThread will be created.
          */
         while (true) {
             Socket socket = server_socket.accept();
@@ -73,27 +79,30 @@ public class ServerMain {
     }
 
     /**
-     * Synchronised method for Threads Clients who want to start the game
+     * Synchronised method for Threads Clients who want to start the game.
      * ---
-     * This method return the same gameThread object for two first Threads in the queue.
-     * 1) Counter object represents the number of Threads, who already got the same GameThread object.
-     *    Since game can be created only for 2 client:
-     *    ---everytime counter object reaches 2, the counter and gameThread are back to 0 and null respectively
-     *    ---so if counter = 1, means that the first Thread in the waiting state has been already used for creating GameThread
-     * @param serverThread
-     * @return GameThread object
+     * This method returns single GameThread object for the first two Threads in the queue.
+     *
+     * @param serverThread The ServerThread object to be added to the queue.
+     * @return The GameThread object used for the current game.
      */
     public GameThread addToQueue(ServerThread serverThread) {
         synchronized (lock) {
             //add Thread to the waiting queue
             waitingQueue.add(serverThread);
+            // If the counter is 1, it means that the first Thread in the waiting state has already been used for creating GameThread.
             while (waitingQueue.size() != 2 && counter != 1) {
                 try {
-                    lock.wait(); //thread 1 realize the key
+                    lock.wait(); // Thread 1 releases the lock
                 } catch (InterruptedException e) {
                     // Handle the exception
                 }
             }
+
+            /*
+             * Since game can be created only for 2 client:
+             * everytime counter object reaches 2, the counter and gameThread are back to 0 and null respectively
+             */
             if (counter == 2) {
                 counter = 0;
                 gameThread = null;
@@ -110,9 +119,11 @@ public class ServerMain {
         }
     }
 
-
-
-
+    /**
+     * Main entry point of the server application.
+     *
+     * @param args The command-line arguments.
+     */
     public static void main(String[] args) {
         try {
             var server = new ServerMain();

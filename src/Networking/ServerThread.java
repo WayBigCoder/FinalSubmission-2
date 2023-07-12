@@ -6,7 +6,7 @@ import java.net.Socket;
 import util.Protocol;
 
 /**
- * All of this code is run for every new client individually
+ * All of this code is run for every new client individually.
  */
 public class ServerThread implements Runnable {
     private Socket socket;
@@ -14,12 +14,13 @@ public class ServerThread implements Runnable {
     private GameThread gameThread;
     private String name;
 
-    //constructor
-    public ServerThread(Socket socket, ServerMain serverMain){
+    // Constructor
+    public ServerThread(Socket socket, ServerMain serverMain) {
         this.socket = socket;
         this.serverMain = serverMain;
     }
-    //getter
+
+    // Getter
     public String getName() {
         return name;
     }
@@ -31,8 +32,8 @@ public class ServerThread implements Runnable {
      * (only MOVE~INDEX message is accepted, when it comes to your turn)
      *
      * @param message of ServerThread who's turn it is
-     * @param out_socket outgoing for sending messages to client
-     * @return boolean
+     * @param out_socket PrintWriter for sending messages to the client
+     * @return boolean Indicates whether the move message was accepted or not
      */
     private boolean checkMoveMessage(String message, PrintWriter out_socket) {
         if (message.startsWith("MOVE")) {
@@ -52,20 +53,21 @@ public class ServerThread implements Runnable {
         try {
             System.out.println("New client has connected!:)");
 
-            //incoming
+            // Incoming message reader
             BufferedReader in_socket = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            //outgoing
+            // Outgoing message writer
             PrintWriter out_socket = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
 
             String message;
 
-            //HANDSHAKE
+            // HANDSHAKE
             while (true) {
-                //read message from client side
+                // Read message from client side
                 message = in_socket.readLine();
                 if (message == null) {
                     System.out.println("Client has disconnected.");
-                    socket.close(); // close the socket
+                    // Close the socket if Client has disconnected
+                    socket.close();
                     System.out.println("Disconnected from client.");
                     break;
                 }
@@ -88,78 +90,83 @@ public class ServerThread implements Runnable {
                 }
             }
 
-            //MAIN COMMANDS
+            // MAIN COMMANDS
             while (true) {
                 message = in_socket.readLine();
 
                 if (message == null) {
-                    socket.close(); // close the socket
+                    // Close the socket if the message is null
+                    socket.close();
                     System.out.println("Disconnected from clientt.");
                     if (name != null) {
                         serverMain.usernames.remove(name);
                     }
                     break;
 
-                }else if (message.startsWith("LIST")){
+                } else if (message.startsWith("LIST")) {
                     out_socket.println(Protocol.listFromServer(serverMain.usernames));
 
-                }else if (message.startsWith("QUEUE")){
-                    //as soon this command is called, the game loop is started
-                    //in below line the code can be paused, as Thread can be in wait() state in AddToQueue method
+                } else if (message.startsWith("QUEUE")) {
+                    // As soon as this command is called, the game loop is started
+                    // The code can be paused here as the Thread can be in wait() state in the AddToQueue method
                     gameThread = serverMain.addToQueue(this);
-                    //send Protocol msg to Clients about new game
-                    out_socket.println(Protocol.newGameFromServer(gameThread.name1(),gameThread.name2()));
+                    // Send Protocol message to Clients about a new game
+                    out_socket.println(Protocol.newGameFromServer(gameThread.name1(), gameThread.name2()));
 
                     while (!gameThread.isGameOver()) {
-                        //if player's name, which turn it is, matches with thread's name object
-                        //then it is expecting only MOVE command from client , otherwise error
-                        if (gameThread.nameForTurn().equals(name) && gameThread.getGame().getBothPlayerAlive()){
+                        // If it is the turn of the client with the matching name
+                        // and both players are still alive
+                        if (gameThread.nameForTurn().equals(name) && gameThread.getGame().getBothPlayerAlive()) {
 
-                            //if client, whose turn it is, doesn't have valid moves
-                            if(gameThread.getGame().getValidMoves().size() == 0) {
+                            // If client, whose turn it is, doesn't have valid moves
+                            if (gameThread.getGame().getValidMoves().size() == 0) {
                                 gameThread.getGame().turnIndexChange();
-                                //if count reaches two, means two players don't have valid moves
+                                // If count reaches two, means two players don't have valid moves
                                 gameThread.getGame().incrementTurnsWithoutMove();
                                 out_socket.println(Protocol.moveFromClient(64));
                                 gameThread.moveIndex = 64;
-                                //notify a client, who are in waiting state for our doMove
+                                // Notify a client, who are in waiting state for our doMove
                                 gameThread.notifyWaitState();
-                                continue; //goes to line 106 -- while (!gameThread.isGameOver()) --
+                                continue; // Goes to line 106 -- while (!gameThread.isGameOver()) --
                             }
-                            while (true){
+                            while (true) {
                                 message = in_socket.readLine();
 
-                                //if client was disconnected
-                                if(message == null){
-                                    socket.close(); // close the socket
+                                // If client was disconnected
+                                if (message == null) {
+                                    // Close the socket if the message is null
+                                    socket.close();
                                     System.out.println("Disconnected from clientt. Noo");
                                     if (name != null) {
+                                        // Remove the disconnected username from the server's list
                                         serverMain.usernames.remove(name);
                                     }
-                                    //set 'BothPlayerAlive' object to false
+                                    // Set 'BothPlayerAlive' object to false
                                     gameThread.getGame().setBothPlayerAlive(false);
-                                    //notify another player in the waiting state
+                                    // Notify another player in the waiting state
                                     gameThread.notifyWaitState();
                                     break;
-                                }else if (checkMoveMessage(message, out_socket)) {
+                                } else if (checkMoveMessage(message, out_socket)) {
                                     gameThread.getGame().resetTurnsWithoutMove();
                                     break;
                                 }
                             }
-                        }else{
-                            //Because it's not player turn, (s)he goes to waiting state
+                        } else {
+                            // Because it's not player turn, (s)he goes to waiting state
                             gameThread.waitingState(name, out_socket);
                         }
                     }
-                    //if the reason wasn't "DISCONNECT", we check other 2 option (DRAW, VICTORY)
+                    // If the reason wasn't "DISCONNECT", we check the other two remaining options (DRAW, VICTORY)
                     if (gameThread.getGame().getBothPlayerAlive()) {
                         AbstractPlayer winner = (AbstractPlayer) gameThread.getGame().getWinner();
-                        if (gameThread.getGame().getWinner() != null)
+                        if (gameThread.getGame().getWinner() != null) {
                             out_socket.println(Protocol.gameOverFromServer("VICTORY", winner.getName()));
-                        else{ //otherwise match is draw
-                            out_socket.println(Protocol.gameOverFromServer("DRAW", null));}
+                        } else {
+                            // Otherwise match is draw
+                            out_socket.println(Protocol.gameOverFromServer("DRAW", null));
+                        }
                     }
-                }else{
+                } else {
                     out_socket.println("ERROR");
                 }
         }
@@ -169,7 +176,8 @@ public class ServerThread implements Runnable {
             e.printStackTrace();
         } finally {
             try {
-                socket.close(); // close the socket
+                // Close the socket
+                socket.close();
                 System.out.println("Disconnected from client.");
                 if (name != null) {
                     serverMain.usernames.remove(name);
