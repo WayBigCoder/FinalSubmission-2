@@ -6,7 +6,8 @@ import java.net.Socket;
 import util.Protocol;
 
 /**
- * All of this code is run for every new client individually.
+ * This class represents a thread that handles communication with a client.
+ * Each instance of this class is responsible for one client connection.
  */
 public class ServerThread implements Runnable {
     private Socket socket;
@@ -14,13 +15,22 @@ public class ServerThread implements Runnable {
     private GameThread gameThread;
     private String name;
 
-    // Constructor
+    /**
+     * Constructs a new ServerThread object.
+     *
+     * @param socket      The socket representing the client connection
+     * @param serverMain  The main server object
+     */
     public ServerThread(Socket socket, ServerMain serverMain) {
         this.socket = socket;
         this.serverMain = serverMain;
     }
 
-    // Getter
+    /**
+     * Returns the name associated with this client thread.
+     *
+     * @return The name of the client
+     */
     public String getName() {
         return name;
     }
@@ -28,8 +38,8 @@ public class ServerThread implements Runnable {
 
 
     /**
-     * Checks whether the Client ,which turn it is, sends the MOVE message.
-     * (only MOVE~INDEX message is accepted, when it comes to your turn)
+     * Checks whether the client, which turn it is, sends the MOVE message.
+     * Only MOVE~INDEX messages are accepted when it is the client's turn.
      *
      * @param message of ServerThread who's turn it is
      * @param out_socket PrintWriter for sending messages to the client
