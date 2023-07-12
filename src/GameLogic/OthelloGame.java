@@ -12,8 +12,8 @@ public class OthelloGame implements Game {
     private AbstractPlayer player1;
     private AbstractPlayer player2;
     private int turnIndex;  // O for black, 1 for white
-    private int count;      // If count reaches 2, then both players don't have moves, even if the board are not full
-    private boolean bothPlayerAlive; // True = both players alive, false = at least one player disconnected
+    private int turnsWithoutMoveCount;      // If count reaches 2, then both players don't have moves, even if the board are not full
+    private boolean areBothPlayersAlive; // True = both players alive, false = at least one player disconnected
 
     /**
      * Creates an OthelloGame with the assigned two players.
@@ -26,8 +26,8 @@ public class OthelloGame implements Game {
         this.player1 = player1;
         this.player2 = player2;
         this.turnIndex = 0;
-        this.count = 0;
-        this.bothPlayerAlive = true;
+        this.turnsWithoutMoveCount = 0;
+        this.areBothPlayersAlive = true;
     }
 
     /**
@@ -52,7 +52,7 @@ public class OthelloGame implements Game {
      * Increments the count of turns without a move for the current player.
      */
     public void incrementTurnsWithoutMove() {
-        this.count += 1;
+        this.turnsWithoutMoveCount += 1;
     }
 
     /**
@@ -61,18 +61,18 @@ public class OthelloGame implements Game {
      * @return the count of turns without a move
      */
     public int getTurnsWithoutMove() {
-        return this.count;
+        return this.turnsWithoutMoveCount;
     }
 
     /**
      * Resets the count of turns without a move to zero when at least one player has a move.
      */
     public void resetTurnsWithoutMove() {
-        this.count = 0;
+        this.turnsWithoutMoveCount = 0;
     }
     @Override
     public boolean isGameover() {
-        return count == 2 || board.isFull() || !bothPlayerAlive;
+        return turnsWithoutMoveCount == 2 || board.isFull() || !areBothPlayersAlive;
     }
 
     /**
@@ -80,8 +80,8 @@ public class OthelloGame implements Game {
      *
      * @param status the status of both players
      */
-    public void setBothPlayerAlive(boolean status){
-        this.bothPlayerAlive = status;
+    public void setAreBothPlayersAlive(boolean status){
+        this.areBothPlayersAlive = status;
     }
 
     /**
@@ -89,8 +89,8 @@ public class OthelloGame implements Game {
      *
      * @return true if both players are alive, false otherwise
      */
-    public boolean getBothPlayerAlive(){
-        return this.bothPlayerAlive;
+    public boolean areBothPlayersAlive(){
+        return this.areBothPlayersAlive;
     }
 
     @Override
@@ -180,7 +180,5 @@ public class OthelloGame implements Game {
         // Change index of player after valid move is done
         turnIndexChange();
     }
-
-
 }
 

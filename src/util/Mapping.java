@@ -30,9 +30,13 @@ public class Mapping {
     public List<Integer> fromIntToCoordinate(int idx) {
         ArrayList<Integer> res = new ArrayList<>();
 
+        // Calculate the x coordinate using integer division of idx by the board dimension
         int x = idx / Board.DIM;
+
+        // Calculate the y coordinate by subtracting x multiplied by the board dimension from idx
         int y = idx - x*Board.DIM;
 
+        // Add the x, y coordinate to the result list
         res.add(x);
         res.add(y);
 

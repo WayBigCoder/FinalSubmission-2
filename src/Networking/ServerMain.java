@@ -18,9 +18,9 @@ public class ServerMain {
     public ArrayList<String> usernames;
 
     // Objects needed for adding Thread to the queue and game start
-    private final Object lock = new Object();
+    private final Object queueLock = new Object();
     // Counter object represents the number of Threads, who already got the same GameThread object.
-    private int counter = 0;
+    private int threadCounter = 0;
     private GameThread gameThread = null;
     private Queue<ServerThread> waitingQueue = new LinkedList<>();
 
@@ -87,13 +87,13 @@ public class ServerMain {
      * @return The GameThread object used for the current game.
      */
     public GameThread addToQueue(ServerThread serverThread) {
-        synchronized (lock) {
+        synchronized (queueLock) {
             //add Thread to the waiting queue
             waitingQueue.add(serverThread);
             // If the counter is 1, it means that the first Thread in the waiting state has already been used for creating GameThread.
-            while (waitingQueue.size() != 2 && counter != 1) {
+            while (waitingQueue.size() != 2 && threadCounter != 1) {
                 try {
-                    lock.wait(); // Thread 1 releases the lock
+                    queueLock.wait(); // Thread 1 releases the lock
                 } catch (InterruptedException e) {
                     // Handle the exception
                 }
@@ -103,8 +103,8 @@ public class ServerMain {
              * Since game can be created only for 2 client:
              * everytime counter object reaches 2, the counter and gameThread are back to 0 and null respectively
              */
-            if (counter == 2) {
-                counter = 0;
+            if (threadCounter == 2) {
+                threadCounter = 0;
                 gameThread = null;
             }
             if (gameThread == null) {
@@ -112,9 +112,9 @@ public class ServerMain {
                 ServerThread sthread2 = waitingQueue.remove();
                 gameThread = new GameThread(sthread1, sthread2);
             }
-            counter++;
-            lock.notify();
-            System.out.println(counter);
+            threadCounter++;
+            queueLock.notify();
+            System.out.println(threadCounter);
             return gameThread;
         }
     }

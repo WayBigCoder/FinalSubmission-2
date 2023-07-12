@@ -126,7 +126,7 @@ public class ServerThread implements Runnable {
                     while (!gameThread.isGameOver()) {
                         // If it is the turn of the client with the matching name
                         // and both players are still alive
-                        if (gameThread.nameForTurn().equals(name) && gameThread.getGame().getBothPlayerAlive()) {
+                        if (gameThread.nameForTurn().equals(name) && gameThread.getGame().areBothPlayersAlive()) {
 
                             // If client, whose turn it is, doesn't have valid moves
                             if (gameThread.getGame().getValidMoves().size() == 0) {
@@ -152,7 +152,7 @@ public class ServerThread implements Runnable {
                                         serverMain.usernames.remove(name);
                                     }
                                     // Set 'BothPlayerAlive' object to false
-                                    gameThread.getGame().setBothPlayerAlive(false);
+                                    gameThread.getGame().setAreBothPlayersAlive(false);
                                     // Notify another player in the waiting state
                                     gameThread.notifyWaitState();
                                     break;
@@ -167,7 +167,7 @@ public class ServerThread implements Runnable {
                         }
                     }
                     // If the reason wasn't "DISCONNECT", we check the other two remaining options (DRAW, VICTORY)
-                    if (gameThread.getGame().getBothPlayerAlive()) {
+                    if (gameThread.getGame().areBothPlayersAlive()) {
                         AbstractPlayer winner = (AbstractPlayer) gameThread.getGame().getWinner();
                         if (gameThread.getGame().getWinner() != null) {
                             out_socket.println(Protocol.gameOverFromServer("VICTORY", winner.getName()));

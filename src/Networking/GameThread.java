@@ -145,7 +145,7 @@ public class GameThread {
             }
             // If both players still online, then the player, who was in wait state, will do move
             // Otherwise, the server will send the "DISCONNECT" message
-            if (this.getGame().getBothPlayerAlive()) {
+            if (this.getGame().areBothPlayersAlive()) {
                 // Reset the moveIsDone flag for the next turn
                 setMoveIsDone(false);
                 // Send a move, which was done by another player, to the player, who was waiting
