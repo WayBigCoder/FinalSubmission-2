@@ -1,5 +1,6 @@
 package GameLogic;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,7 +27,7 @@ public class Board {
 
     /**
      * Constructor which Creates an empty board and initializes the flippedDiscs list.
-     * The center of the board is set with the default marks.
+     * The center of the board is set to the default marks.
      */
     //@ ensures (\forall int i; (i >= 0 && i < 27); fields[i] == Mark.EMPTY);
     //@ ensures (\forall int i; (i >= 29 && i < 35); fields[i] == Mark.EMPTY);
@@ -105,7 +106,7 @@ public class Board {
      *
      * @return the list of indexes for flipped discs
      */
-    public ArrayList<Integer> getFlippedDiscs() { // new
+    public ArrayList<Integer> getFlippedDiscs() {
         return flippedDiscs;
     }
 

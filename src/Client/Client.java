@@ -82,7 +82,7 @@ public class Client implements OthelloClient, Runnable {
             this.socket.close();
             this.out.close();
         } catch (Exception e) {
-            System.out.println("[CLIENT] Cannot close the socket/out");
+            System.out.println("[CLIENT] ERROR");
         }
     }
 
@@ -175,24 +175,17 @@ public class Client implements OthelloClient, Runnable {
 
         // Perform the corresponding action based on the user's choice
         switch (choice) {
-            case 1:
-                // Send LIST command to the server
-                sendListCommand();
-                break;
-            case 2:
-                // Send QUEUE command to the server
-                sendQueueCommand();
-                break;
-            case 3:
-                // Handle the login process
-                handleLogin();
-                break;
-            case 4:
-                close();
-                break;
-            default:
+            // Send LIST command to the server
+            case 1 -> sendListCommand();
+            // Send QUEUE command to the server
+            case 2 -> sendQueueCommand();
+            // Handle the login process
+            case 3 -> handleLogin();
+            case 4 -> close();
+            default -> {
                 System.out.println("No process with this choice! Please choose again");
                 handleLogin();
+            }
         }
     }
 
@@ -268,13 +261,13 @@ public class Client implements OthelloClient, Runnable {
     //@ requires message!=null;
     public synchronized void handleList(String message) {
         String[] parse = message.split("~");
+        this.clientTUI.out.print("List of active players: ");
         for (int i = 1; i < parse.length; i++) {
-            this.clientTUI.out.println(parse[i]);
+            this.clientTUI.out.print(parse[i] + " , ");
         }
+        this.clientTUI.out.println();
         this.clientTUI.out.flush();
-
         printMenu();
-
     }
 
     /**
@@ -589,6 +582,14 @@ public class Client implements OthelloClient, Runnable {
         }
     }
 
+    /**
+     * The main entry point of the Client application.
+     * Prompts the user for an IP address and port number,
+     * establishes a connection to the server, and starts a new thread for the client.
+     *
+     * @param args the command-line arguments
+     * @throws IOException if an I/O error occurs while connecting to the server
+     */
     public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);
         Client client = new Client();

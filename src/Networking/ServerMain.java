@@ -56,7 +56,7 @@ public class ServerMain {
 
         waitingQueue = new LinkedList<>();
         usernames = new ArrayList<>();
-        System.out.println("Port " + port + " is now open");
+        System.out.println("Server started on port " + port + "!");
     }
 
     /**
@@ -79,7 +79,7 @@ public class ServerMain {
     }
 
     /**
-     * Synchronised method for Threads Clients who want to start the game.
+     * Synchronised method for Threads Cannot connect the clients who want to start the game.
      * ---
      * This method returns single GameThread object for the first two Threads in the queue.
      *
@@ -111,10 +111,10 @@ public class ServerMain {
                 ServerThread sthread1 = waitingQueue.remove();
                 ServerThread sthread2 = waitingQueue.remove();
                 gameThread = new GameThread(sthread1, sthread2);
+                System.out.println("Started new game with players: " + gameThread.name1() + " and " + gameThread.name2());
             }
             threadCounter++;
             queueLock.notify();
-            System.out.println(threadCounter);
             return gameThread;
         }
     }

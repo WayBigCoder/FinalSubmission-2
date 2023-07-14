@@ -29,7 +29,7 @@ public class OthelloTUI {
     }
 
     /**
-     * Checks what type of player will be based on their name: Human or Computer (if -S or -N).
+     * Checks what type of player (Human or Computer) will be based on their name.
      *
      * @param name the name of the player
      * @param mark the mark of the player
@@ -99,10 +99,10 @@ public class OthelloTUI {
 
     /**
      * Runs a game of Othello.
-     * It creates an instance of the OthelloTUI class and enters a loop that continues until the game is over.
+     * It creates an OthelloTUI object and enters a loop that continues until the game is over.
 
      * In the loop, the method prints the current state of the game board, prompts the current player for their move,
-     * updates the game state based on the player's move, and checks if the game is over.
+     * updates the game state based on the player's move and checks if the game is over.
      */
     public void run() {
         boolean flag = true;

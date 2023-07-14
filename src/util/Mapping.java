@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Mapping class provides methods for converting between coordinates and indices.
+ * The Mapping class provides methods for converting between coordinates and indices of player's move.
  */
 public class Mapping {
 

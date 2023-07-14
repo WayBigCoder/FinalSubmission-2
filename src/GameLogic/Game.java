@@ -18,8 +18,10 @@ public interface Game {
     void changeBoard(Board boardCopy);
 
     /**
-     * Check if the game is over, i.e., there is no spaces in th board
-     * or count reaches 2, meaning no moves available for 2 players, even if the board is full.
+     * Check if the game is over.
+     * Condition:
+     * 1) there is no spaces in th board
+     * or 2) count reaches 2, meaning no moves available for 2 players, even if the board is not full.
      *
      * @return true if the game is over, false otherwise
      */

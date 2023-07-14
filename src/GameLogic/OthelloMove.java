@@ -49,7 +49,7 @@ public class OthelloMove implements Move {
     }
 
     /**
-     * Returns a string representation of the move in the format: "Row [row] - Col [col] - Mark [mark]".
+     * Returns a string representation of the move.
      *
      * @return a string representation of the move
      */

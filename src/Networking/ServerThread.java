@@ -3,6 +3,8 @@ package Networking;
 import GameLogic.AbstractPlayer;
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
+
 import util.Protocol;
 
 /**
@@ -78,7 +80,6 @@ public class ServerThread implements Runnable {
                     System.out.println("Client has disconnected.");
                     // Close the socket if Client has disconnected
                     socket.close();
-                    System.out.println("Disconnected from client.");
                     break;
                 }
                 if (message.startsWith("HELLO")) {
@@ -107,7 +108,6 @@ public class ServerThread implements Runnable {
                 if (message == null) {
                     // Close the socket if the message is null
                     socket.close();
-                    System.out.println("Disconnected from clientt.");
                     if (name != null) {
                         serverMain.usernames.remove(name);
                     }
@@ -140,13 +140,21 @@ public class ServerThread implements Runnable {
                                 continue; // Goes to line 106 -- while (!gameThread.isGameOver()) --
                             }
                             while (true) {
-                                message = in_socket.readLine();
+                                try {
+                                    message = in_socket.readLine();
+                                } catch (SocketException e) {
+                                    // If name SocketException is catch, then client disconnected
+                                    if (name != null) {
+                                        serverMain.usernames.remove(name);
+                                    }
+                                    // Exit the method and go to the finally block
+                                    return;
+                                }
 
                                 // If client was disconnected
                                 if (message == null) {
                                     // Close the socket if the message is null
                                     socket.close();
-                                    System.out.println("Disconnected from clientt. Noo");
                                     if (name != null) {
                                         // Remove the disconnected username from the server's list
                                         serverMain.usernames.remove(name);
@@ -188,10 +196,21 @@ public class ServerThread implements Runnable {
             try {
                 // Close the socket
                 socket.close();
-                System.out.println("Disconnected from client.");
+                System.out.println("Client " + name + " disconnected");
+
+                // If disconnected player has active game
+                if (this.gameThread != null) {
+                    // Set 'areBothPlayerAlive' object to false
+                    this.gameThread.getGame().setAreBothPlayersAlive(false);
+                    // Notify another player in the waiting state (if any)
+                    gameThread.notifyWaitState();
+                }
+
+                // Delete username from List of players
                 if (name != null) {
                     serverMain.usernames.remove(name);
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
